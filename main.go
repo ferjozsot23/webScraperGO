@@ -2,47 +2,50 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"strconv"
 
 	"github.com/ferjozsot23/webScraperGO/csv"
 	"github.com/gocolly/colly"
 )
 
-var protocol = "https"
-var domain = "deceac-el.espe.edu.ec"
-var path = "personal-docente-e-investigadores/"
-var URL = fmt.Sprintf("%s://%s/%s", protocol, domain, path)
+// var protocol = "https"
+// var domain = "timecenter.ec"
+// var path = "tienda/page/2/"
+// var URL = fmt.Sprintf("%s://%s/%s", protocol, domain, path)
+
+var data = [][]string{{"Item", "Category", "Price", "ImagenURL"}}
 
 func main() {
-	// Creating the colly Collector
-	collector := colly.NewCollector(
-		colly.AllowedDomains(domain),
-	)
-	var data [][]string
-	// Añadiendo la primera fila
-	data = append(data, [][]string{{"Professor", "Email", "ImageURL"}}...)
-
-	htmlFunctionExtracting := func(htmlElement *colly.HTMLElement) {
-
-		professor := htmlElement.ChildText("h5") // extracting text from html element
-		email := htmlElement.ChildText("span[style='color: #008000; font-family: Agency FB,serif;']")
-		image := htmlElement.ChildAttrs("img", "src") // extracting value from attr of a html element
-
-		if professor != "" {
-			if email == "" {
-				email = "email empty"
-			}
-			if image[0] == "" {
-				image[0] = "image source empty"
-			}
-
-			data = append(data, [][]string{{professor, email, image[0]}}...)
-		}
+	if len(os.Args) != 4 {
+		log.Println("Put domain, path and number of pages")
+		os.Exit(1)
+	}
+	var domain = os.Args[1]
+	var path = os.Args[2]
+	var pages, err = strconv.Atoi(os.Args[3])
+	if err != nil {
+		log.Fatal("Ingrsee un número correcto en páginas")
 	}
 
-	// Scraping all the div's elements with ".elementor-column-wrap"
-	collector.OnHTML(".elementor-column-wrap", htmlFunctionExtracting)
+	for i := 1; i <= pages; i++ {
+		collector := colly.NewCollector(
+			colly.AllowedDomains(domain),
+		)
+		collector.OnHTML(".product-inner", func(htmlElement *colly.HTMLElement) {
 
-	collector.Visit(URL)
-	csv.SaveDataOnCSVFormat(data, "data-espe")
+			item := htmlElement.ChildText(".product-loop-header h2")       // extracting text from html element
+			category := htmlElement.ChildText(".product-loop-header span") // extracting text from html element
+			price := htmlElement.ChildText(".product-loop-footer bdi")
+			image := htmlElement.ChildAttr("img", "src") // extracting value from attr of a html element
+
+			data = append(data, [][]string{{item, category, price, image}}...)
+		})
+
+		collector.Visit(fmt.Sprintf("%s%d", path, i))
+	}
+	csv.SaveDataOnCSVFormat(data, "data-timecenterec")
+
 
 }
