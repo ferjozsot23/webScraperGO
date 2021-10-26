@@ -10,10 +10,7 @@ import (
 	"github.com/gocolly/colly"
 )
 
-// var protocol = "https"
-// var domain = "timecenter.ec"
-// var path = "tienda/page/2/"
-// var URL = fmt.Sprintf("%s://%s/%s", protocol, domain, path)
+
 
 var data = [][]string{{"Item", "Category", "Price", "ImagenURL"}}
 
@@ -26,7 +23,7 @@ func main() {
 	var path = os.Args[2]
 	var pages, err = strconv.Atoi(os.Args[3])
 	if err != nil {
-		log.Fatal("Ingrsee un número correcto en páginas")
+		log.Fatal("Put a correct number of pages")
 	}
 
 	for i := 1; i <= pages; i++ {
