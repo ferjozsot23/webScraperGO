@@ -7,9 +7,9 @@ import (
 	"github.com/gocolly/colly"
 )
 
-var protocol = "https"
-var domain = "deceac-el.espe.edu.ec"
-var path = "personal-docente-e-investigadores/"
+var protocol = ""
+var domain = ""
+var path = ""
 var URL = fmt.Sprintf("%s://%s/%s", protocol, domain, path)
 
 func main() {
@@ -19,30 +19,30 @@ func main() {
 	)
 	var data [][]string
 	// Añadiendo la primera fila
-	data = append(data, [][]string{{"Professor", "Email", "ImageURL"}}...)
+	data = append(data, [][]string{{"", "", ""}}...)
 
 	htmlFunctionExtracting := func(htmlElement *colly.HTMLElement) {
 
-		professor := htmlElement.ChildText("h5") // extracting text from html element
-		email := htmlElement.ChildText("span[style='color: #008000; font-family: Agency FB,serif;']")
-		image := htmlElement.ChildAttrs("img", "src") // extracting value from attr of a html element
+		field1 := htmlElement.ChildText("") // extracting text from html element
+		field2 := htmlElement.ChildText("")
+		field3 := htmlElement.ChildAttrs("", "") // extracting value from attr of a html element
 
-		if professor != "" {
-			if email == "" {
-				email = "email empty"
+		if field1 != "" {
+			if field2 == "" {
+				field2 = ""
 			}
-			if image[0] == "" {
-				image[0] = "image source empty"
+			if field3[0] == "" {
+				field3[0] = ""
 			}
 
-			data = append(data, [][]string{{professor, email, image[0]}}...)
+			data = append(data, [][]string{{field1, field2, field3[0]}}...)
 		}
 	}
 
 	// Scraping all the div's elements with ".elementor-column-wrap"
-	collector.OnHTML(".elementor-column-wrap", htmlFunctionExtracting)
+	collector.OnHTML(".", htmlFunctionExtracting)
 
 	collector.Visit(URL)
-	csv.SaveDataOnCSVFormat(data, "data-espe")
+	csv.SaveDataOnCSVFormat(data, "data")
 
 }
