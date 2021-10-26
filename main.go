@@ -27,16 +27,8 @@ func main() {
 		field2 := htmlElement.ChildText("")
 		field3 := htmlElement.ChildAttrs("", "") // extracting value from attr of a html element
 
-		if field1 != "" {
-			if field2 == "" {
-				field2 = ""
-			}
-			if field3[0] == "" {
-				field3[0] = ""
-			}
+		data = append(data, [][]string{{field1, field2, field3[0]}}...)
 
-			data = append(data, [][]string{{field1, field2, field3[0]}}...)
-		}
 	}
 
 	// Scraping all the div's elements with ".elementor-column-wrap"
